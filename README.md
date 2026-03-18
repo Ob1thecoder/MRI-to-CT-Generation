@@ -41,26 +41,55 @@ This project implements a Pix2Pix conditional GAN (cGAN) model to generate synth
 - **[`build_discriminator`](utils/pix2pix.py)**: PatchGAN discriminator for realistic texture generation
 - **[`Pix2Pix`](utils/pix2pix.py)**: Main model class with adversarial + L1 loss
 
-## Model Architecture
-
-### Generator (U-Net)
-- Encoder: 8 downsampling blocks with increasing filters (64→512)
-- Decoder: 7 upsampling blocks with skip connections
-- Output: Tanh activation for [-1, 1] range
-
-### Discriminator (PatchGAN)
-- Classifies 70×70 patches as real/fake
-- Takes both condition (MRI) and target (CT) as input
-- 4 convolutional layers with batch normalization
-
-## Training Details
-
-- **Loss Function**: Adversarial loss + 100×L1 loss
-- **Optimizer**: Adam (lr=2e-4, β₁=0.5, β₂=0.999)
-- **Batch Size**: 8 (adjustable)
-- **Image Size**: 256×256 pixels
-- **Data Augmentation**: Random flips, rotations, and scaling
-
+## Architecture
+ 
+| Component | Details |
+|-----------|---------|
+| Generator | U-Net (encoder-decoder with skip connections) |
+| Discriminator | PatchGAN (70×70 receptive field) |
+| Loss | Adversarial (BCE) + L1 reconstruction loss |
+| Framework | PyTorch |
+ 
+---
+ 
+## Results
+ 
+The model learns to map structural features from MRI (soft tissue contrast) to the Hounsfield unit ranges expected in CT (bone = bright, air = dark, soft tissue = mid-range).
+ 
+Evaluation metrics:
+- **SSIM** (Structural Similarity Index) — measures perceptual similarity
+- **MAE** (Mean Absolute Error) — measures pixel-level reconstruction accuracy
+ 
+---
+ 
+## Setup
+ 
+```bash
+git clone https://github.com/Ob1thecoder/MRI-to-CT-Generation
+cd MRI-to-CT-Generation
+pip install torch torchvision opencv-python matplotlib jupyter
+```
+ 
+Open `MRI_to_CT.ipynb` in Jupyter and run cells top to bottom.
+ 
+**Dataset:** Paired MRI–CT volumes (e.g. [Gold Atlas](https://www.cancerimagingarchive.net/) or similar). Place in `data/train/` with subdirectories `mri/` and `ct/`.
+ 
+---
+ 
+## Project Structure
+ 
+```
+MRI-to-CT-Generation/
+├── MRI_to_CT.ipynb      # Main notebook (data loading, training, evaluation)
+├── data/
+│   ├── train/
+│   │   ├── mri/
+│   │   └── ct/
+│   └── test/
+└── outputs/             # Generated images saved here
+```
+ 
+---
 ## Evaluation Metrics
 
 - **PSNR**: Peak Signal-to-Noise Ratio
